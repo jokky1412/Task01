@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="UTF-8" ?>   
+<!DOCTYPE mapper   
+PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"  
+"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd"> 
+<mapper namespace="com.spring.app.TraineeDB.dao.TraineeInfoDao">
+
+  <resultMap id="BaseResultMap" type="com.spring.app.TraineeDB.pojo.TraineeInfo" >
+    <id column="trainee_id" property="traineeId" jdbcType="BIGINT" />
+    <result column="trainee_name" property="traineeName" jdbcType="VARCHAR" />
+    <result column="qq_number" property="qqNumber" jdbcType="BIGINT" />
+    <result column="practice_type" property="practiceType" jdbcType="VARCHAR" />
+    <result column="reg_time" property="regTime" jdbcType="BIGINT" />
+    <result column="college" property="college" jdbcType="VARCHAR" />
+    <result column="online_id" property="onlineId" jdbcType="BIGINT" />
+    <result column="daily_link" property="dailyLink" jdbcType="VARCHAR" />
+    <result column="slogan" property="slogan" jdbcType="VARCHAR" />
+    <result column="tutor_name" property="tutorName" jdbcType="VARCHAR" />
+    <result column="create_at" property="createAt" jdbcType="TIMESTAMP" />
+    <result column="update_at" property="updateAt" jdbcType="TIMESTAMP" />
+  </resultMap>
+
+  <sql id="Base_Column_List" >
+    trainee_id, trainee_name, qq_number, practice_type, reg_time, college, online_id, 
+    daily_link, slogan, tutor_name, create_at, update_at
+  </sql>
+  
+  
+  <!-- 查单个信息 -->
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from trainee_info_copy
+    where trainee_id = #{traineeId,jdbcType=BIGINT}
+  </select>
+  
+	<!-- 根据ID：查询名字 -->
+	<select id="selectNameById" parameterType="java.lang.Long" resultType="String">
+		SELECT trainee_name 
+		FROM trainee_info_copy 
+		WHERE trainee_id = #{traineeId,jdbcType=BIGINT}
+	</select> 
+	<!-- 根据ID：查询QQ号码 -->
+	<select id="selectQQ_Number" parameterType="java.lang.Long" resultType="java.lang.Long" >
+		SELECT qq_number 
+		FROM trainee_info_copy 
+		WHERE trainee_id = #{traineeId,jdbcType=BIGINT}
+	</select>
+	<!-- 根据名字：查询信息 -->
+	<select id="selectInfoByName" resultMap="BaseResultMap" parameterType="String" >
+		SELECT * 
+		FROM trainee_info_copy 
+		WHERE trainee_name = #{traineeName,jdbcType=VARCHAR}
+	</select>	  
+
+	<!-- 所有名字 -->
+    <select id="listTraineeNames" resultType="String" >
+        SELECT trainee_name 
+        FROM trainee_info_copy      
+    </select>
+	<!-- 所有口号 -->
+    <select id="listTraineeSlogans" resultType="String" >
+    	SELECT slogan 
+    	FROM trainee_info_copy
+    </select>  
+	<!-- 所有学员信息 -->
+    <select id="listTraineeInfos" resultMap="BaseResultMap" >
+	    select 
+	    <include refid="Base_Column_List" />
+	    from trainee_info_copy
+    </select>
+    
+	<!-- 所有学员信息的概览：ID、姓名、QQ、类型、注册、学校、线上学号 -->
+    <select id="listOverview" resultMap="BaseResultMap">
+    	SELECT trainee_id,trainee_name,qq_number,practice_type,reg_time,college,online_id 
+    	FROM trainee_info_copy
+    </select>
+
+  
+  
+  
+  
+  
+  <!-- 删 -->
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from trainee_info_copy
+    where trainee_id = #{traineeId,jdbcType=BIGINT}
+  </delete>
+  
+  
+  
+  <!-- 增 -->
+  <!-- 会插入所有字段，会插入Null数据，忽略字段定义的Default值   -->
+  <insert id="insert" useGeneratedKeys="true" keyProperty="traineeId">
+	<!-- 返回自增ID -->
+    <selectKey keyProperty="traineeId" resultType="java.lang.Long" order="AFTER">
+        SELECT last_insert_id();
+    </selectKey>	  
+    insert into trainee_info_copy (
+      trainee_name, qq_number, 
+      practice_type, reg_time, college, 
+      online_id, daily_link, slogan, 
+      tutor_name, create_at, update_at
+      )
+    values (
+      #{traineeName,jdbcType=VARCHAR}, #{qqNumber,jdbcType=BIGINT}, 
+      #{practiceType,jdbcType=VARCHAR}, #{regTime,jdbcType=BIGINT}, #{college,jdbcType=VARCHAR}, 
+      #{onlineId,jdbcType=BIGINT}, #{dailyLink,jdbcType=VARCHAR}, #{slogan,jdbcType=VARCHAR}, 
+      #{tutorName,jdbcType=VARCHAR}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
+      )
+  </insert>
+  
+  <!-- 增判断   -->
+  <!-- 只会插入数据不为Null的字段 -->
+  <!--  若某个字段具有默认值Default，则该待插入的该字段的值不会被插入，而用Default值填充该字段  --> 
+  <insert id="insertSelective" useGeneratedKeys="true" keyProperty="traineeId" >
+	<!-- 返回自增ID -->
+    <selectKey keyProperty="traineeId" resultType="java.lang.Long" order="AFTER">
+        SELECT last_insert_id();
+    </selectKey>  
+    insert into trainee_info_copy
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="traineeName != null" >
+        trainee_name,
+      </if>
+      <if test="qqNumber != null" >
+        qq_number,
+      </if>
+      <if test="practiceType != null" >
+        practice_type,
+      </if>
+      <if test="regTime != null" >
+        reg_time,
+      </if>
+      <if test="college != null" >
+        college,
+      </if>
+      <if test="onlineId != null" >
+        online_id,
+      </if>
+      <if test="dailyLink != null" >
+        daily_link,
+      </if>
+      <if test="slogan != null" >
+        slogan,
+      </if>
+      <if test="tutorName != null" >
+        tutor_name,
+      </if>
+      <if test="createAt != null" >
+        create_at,
+      </if>
+      <if test="updateAt != null" >
+        update_at,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="traineeName != null" >
+        #{traineeName,jdbcType=VARCHAR},
+      </if>
+      <if test="qqNumber != null" >
+        #{qqNumber,jdbcType=BIGINT},
+      </if>
+      <if test="practiceType != null" >
+        #{practiceType,jdbcType=VARCHAR},
+      </if>
+      <if test="regTime != null" >
+        #{regTime,jdbcType=BIGINT},
+      </if>
+      <if test="college != null" >
+        #{college,jdbcType=VARCHAR},
+      </if>
+      <if test="onlineId != null" >
+        #{onlineId,jdbcType=BIGINT},
+      </if>
+      <if test="dailyLink != null" >
+        #{dailyLink,jdbcType=VARCHAR},
+      </if>
+      <if test="slogan != null" >
+        #{slogan,jdbcType=VARCHAR},
+      </if>
+      <if test="tutorName != null" >
+        #{tutorName,jdbcType=VARCHAR},
+      </if>
+      <if test="createAt != null" >
+<!--         #{createAt,jdbcType=TIMESTAMP}, -->
+<!-- 直接写入MySQL的当前时间 -->
+		CURRENT_TIMESTAMP,
+      </if>
+      <if test="updateAt != null" >
+<!--         #{updateAt,jdbcType=TIMESTAMP}, -->
+<!-- 直接写入MySQL的当前时间 -->
+		CURRENT_TIMESTAMP,
+      </if>
+    </trim>
+  </insert>
+
+
+
+  <!-- 更新判断  -->
+  <!-- 更新model中不为空的字段 -->
+  <!--  若准备用于更新某个字段的值为Null，则不会被用来更新该字段  -->
+  <update id="updateByPrimaryKeySelective" parameterType="com.spring.app.TraineeDB.pojo.TraineeInfo" >
+    update trainee_info_copy
+    <set >
+      <if test="traineeName != null" >
+        trainee_name = #{traineeName,jdbcType=VARCHAR},
+      </if>
+      <if test="qqNumber != null" >
+        qq_number = #{qqNumber,jdbcType=BIGINT},
+      </if>
+      <if test="practiceType != null" >
+        practice_type = #{practiceType,jdbcType=VARCHAR},
+      </if>
+      <if test="regTime != null" >
+        reg_time = #{regTime,jdbcType=BIGINT},
+      </if>
+      <if test="college != null" >
+        college = #{college,jdbcType=VARCHAR},
+      </if>
+      <if test="onlineId != null" >
+        online_id = #{onlineId,jdbcType=BIGINT},
+      </if>
+      <if test="dailyLink != null" >
+        daily_link = #{dailyLink,jdbcType=VARCHAR},
+      </if>
+      <if test="slogan != null" >
+        slogan = #{slogan,jdbcType=VARCHAR},
+      </if>
+      <if test="tutorName != null" >
+        tutor_name = #{tutorName,jdbcType=VARCHAR},
+      </if>
+<!--       <if test="createAt != null" > -->
+<!--         create_at = #{createAt,jdbcType=TIMESTAMP}, -->
+<!--       </if> -->
+      <if test="updateAt != null" >
+<!--         update_at = #{updateAt,jdbcType=TIMESTAMP}, -->
+<!-- 直接写入MySQL的当前时间 -->
+		update_at = CURRENT_TIMESTAMP 
+      </if>
+    </set>
+    where trainee_id = #{traineeId,jdbcType=BIGINT}
+  </update>
+ 
+  <!--  更新  -->
+  <update id="updateByPrimaryKey" parameterType="com.spring.app.TraineeDB.pojo.TraineeInfo" >
+    update trainee_info_copy
+    set trainee_name = #{traineeName,jdbcType=VARCHAR},
+      qq_number = #{qqNumber,jdbcType=BIGINT},
+      practice_type = #{practiceType,jdbcType=VARCHAR},
+      reg_time = #{regTime,jdbcType=BIGINT},
+      college = #{college,jdbcType=VARCHAR},
+      online_id = #{onlineId,jdbcType=BIGINT},
+      daily_link = #{dailyLink,jdbcType=VARCHAR},
+      slogan = #{slogan,jdbcType=VARCHAR},
+      tutor_name = #{tutorName,jdbcType=VARCHAR},
+<!--       create_at = #{createAt,jdbcType=TIMESTAMP},	 -->
+<!--       update_at = #{updateAt,jdbcType=TIMESTAMP} -->
+      update_at = CURRENT_TIMESTAMP 
+    where trainee_id = #{traineeId,jdbcType=BIGINT}  
+  </update>
+  
+ </mapper> 
