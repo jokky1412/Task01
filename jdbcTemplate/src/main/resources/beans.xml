@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <description>
+	    不同数据源的使用：
+	    Spring：DriverManagerDataSource
+	    Apache：DBCP连接池
+    </description>
+    
+    
+	<!-- 导入资源文件：jdbc.properties -->
+    <context:property-placeholder location="classpath:jdbc.properties"/>
+    
+	<!-- 数据源1.Spring：DriverManagerDataSource -->
+	<bean id="dataSource_spring" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="${driverClass}"></property>
+		<property name="url" value="${jdbcUrl}"></property>
+		<property name="username" value="${user}"></property>
+		<property name="password" value="${password}"></property>
+	</bean>
+
+	<!-- 数据源2.Apache：DBCP连接池 -->
+	 <bean id="dataSource_dbcp2" class="org.apache.commons.dbcp2.BasicDataSource" destroy-method="close">              
+		<property name="driverClassName" value="${driverClass}"></property>
+		<property name="url" value="${jdbcUrl}"></property>
+		<property name="username" value="${user}"></property>
+		<property name="password" value="${password}"></property>
+		
+		<!--初始化-->
+		<property name="maxIdle" value="${dbcp2.maxIdle}"/>        
+        <property name="minIdle" value="${dbcp2.minIdle}"/>        
+        <property name="initialSize" value="${dbcp2.initialSize}"/>        
+        <property name="timeBetweenEvictionRunsMillis" 
+                                        value="${dbcp2.timeBetweenEvictionRunsMillis}"/> 
+		<property name="poolPreparedStatements" value="${dbcp2.poolPreparedStatements}"/>        
+        <property name="maxOpenPreparedStatements" value="${dbcp2.maxOpenPreparedStatements}"/>        
+        <property name="removeAbandonedTimeout" value="${dbcp2.removeAbandonedTimeout}"/>
+
+        <!-- 申请连接时执行validationQuery检测连接是否有效，配置为true会降低性能 -->        
+        <property name="testOnBorrow" value="${dbcp2.testOnBorrow}"/>
+
+        <!-- 归还连接时执行validationQuery检测连接是否有效，配置为true会降低性能  -->        
+        <property name="testOnReturn" value="${dbcp2.testOnReturn}"/>
+
+        <!-- 建议配置为true，不影响性能，并且保证安全性。申请连接的时候检测，如果空闲时间大于
+             timeBetweenEvictionRunsMillis，执行validationQuery检测连接是否有效。  -->               
+        <property name="testWhileIdle" value="${dbcp2.testWhileIdle}"/>
+
+        <!-- 用来检测连接是否有效的sql，要求是一个查询语句,如果validationQuery为
+             null，testOnBorrow、testOnReturn、testWhileIdle都不起其作用。 -->            
+        <property name="validationQuery" value="${dbcp2.validationQuery}"/>     
+	 </bean>
+	 
+	<!-- 在XML中装配JDBCTemplate的数据源：Spring或DBCP -->
+	<bean id="jdbcTemplate_dbcp2" class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource" ref="dataSource_dbcp2"></property>
+	</bean>
+    
+	<!--     
+		注入方法3：实现类继承JdbcDaoSupport，不用声明JdbcTemplate和DataSource
+	-->
+	<bean id="myDao" class="com.spring.app.TraineeDB.TraineeInfoDaoImpl">
+        <property name="dataSource" ref="dataSource_dbcp2"></property>
+	</bean>   
+
+</beans>
