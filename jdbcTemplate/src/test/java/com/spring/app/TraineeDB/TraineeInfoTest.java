@@ -75,7 +75,7 @@ public class TraineeInfoTest {
 		System.out.println("搜索完成...");
 	}
 	
-	/*
+	
 	
 	// 增加
 	@Test
@@ -136,6 +136,6 @@ public class TraineeInfoTest {
 		System.out.println("更新完成...");				
 	}
 	
-	*/
+	
 	
 }
